@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nursing Science Theory Quiz | Martha E. Rogers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --accent: #f59e0b;
+      --bg: #f0f9ff;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
+
+    .app-container { width: 100%; max-width: 800px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); overflow: hidden; position: relative; animation: fadeIn 0.6s ease-out; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+    /* Header */
+    .header { background: linear-gradient(135deg, #0284c7, #0f766e); color: white; padding: 25px 20px; text-align: center; position: relative; }
+    .header h1 { font-size: 1.6rem; font-weight: 700; }
+    .header p { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
+
+    /* Views */
+    .view { display: none; padding: 30px; }
+    .view.active { display: block; animation: slideIn 0.4s ease-in-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* Form & Controls */
+    input[type="text"] { width: 100%; padding: 14px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1rem; margin: 15px 0 20px; transition: 0.3s; }
+    input[type="text"]:focus { border-color: var(--primary); outline: none; }
+
+    .btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; width: 100%; transition: all 0.3s; display: inline-block; text-align: center; text-decoration: none; }
+    .btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(2, 132, 199, 0.3); }
+
+    /* Quiz Header Bar */
+    .quiz-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #e0f2fe; padding: 12px 20px; border-radius: 12px; }
+    .timer-badge { font-weight: 700; color: #b91c1c; background: #fee2e2; padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+    .timer-badge.warning { animation: pulse 1s infinite; }
+
+    /* Question & Options */
+    .question-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+    .options-grid { display: flex; flex-direction: column; gap: 12px; }
+    .option-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.25s; font-weight: 500; }
+    .option-card:hover { border-color: var(--primary); background: #f0f9ff; }
+    .option-card.selected { border-color: var(--primary); background: #e0f2fe; color: var(--primary-dark); }
+    .option-card.correct { border-color: var(--success); background: #d1fae5; color: #065f46; }
+    .option-card.wrong { border-color: var(--danger); background: #fee2e2; color: #991b1b; }
+
+    /* Admin Table */
+    .results-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .results-table th, .results-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
+    .results-table th { background: #f1f5f9; font-weight: 600; }
+
+    /* Progress bar */
+    .progress-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+
+    @media (max-width: 600px) {
+      .view { padding: 20px 15px; }
+      .header h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <h1>Science of Unitary Human Beings</h1>
+    <p>Theory Quiz | Prepared by Ms. Anusiya M.</p>
+  </div>
+
+  <!-- START VIEW -->
+  <div id="start-view" class="view active">
+    <h2>Welcome Candidate</h2>
+    <p style="margin-top: 8px; color: #64748b;">Enter your full name to start the quiz. You have <strong>1 minute per question</strong>.</p>
+    <input type="text" id="candidate-name" placeholder="Enter Your Full Name..." required>
+    <button class="btn" onclick="startQuiz()">Begin Quiz Now</button>
+  </div>
+
+  <!-- QUIZ VIEW -->
+  <div id="quiz-view" class="view">
+    <div class="progress-bg"><div id="progress" class="progress-fill"></div></div>
+    <div class="quiz-bar">
+      <span style="font-weight: 600;" id="q-count">Question 1/15</span>
+      <div id="timer" class="timer-badge">⏱️ 01:00</div>
+    </div>
+    <div class="question-title" id="q-text">Loading question...</div>
+    <div class="options-grid" id="options-container"></div>
+    <button class="btn" id="next-btn" style="margin-top: 25px;" onclick="nextQuestion()">Next Question ➔</button>
+  </div>
+
+  <!-- USER RESULTS VIEW -->
+  <div id="result-view" class="view">
+    <h2 style="text-align: center; color: var(--primary);">Quiz Completed! 🎉</h2>
+    <p style="text-align: center; margin: 10px 0 20px;" id="user-score-text"></p>
+    <div style="text-align: center; margin-bottom: 25px;">
+      <a href="#admin" class="btn" style="width: auto; background: #0f766e;">Go to Sister's Admin View</a>
+    </div>
+    <h3 style="margin-bottom: 15px;">Answer Review & Explanations:</h3>
+    <div id="review-container" style="display: flex; flex-direction: column; gap: 20px;"></div>
+  </div>
+
+  <!-- ADMIN VIEW (FOR SISTER) -->
+  <div id="admin-view" class="view">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2>Sister's Admin Dashboard</h2>
+      <button onclick="clearData()" style="background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">Clear All</button>
+    </div>
+    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">List of all participants who completed the quiz:</p>
+    <div style="overflow-x: auto;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Candidate Name</th>
+            <th>Score</th>
+            <th>Percentage</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody id="admin-table-body">
+          <tr><td colspan="4" style="text-align: center; color: #94a3b8;">No results recorded yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top: 25px;">
+      <a href="#" class="btn">Back to Candidate Quiz View</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 15 MCQ Dataset based on Martha Rogers presentation
+  const questions = [
+    { q: "Where and when was Martha E. Rogers born?", options: ["May 12, 1914, in Dallas, Texas", "March 13, 1994, in Baltimore, Maryland", "June 15, 1936, in Knoxville, Tennessee", "May 12, 1952, in New York, USA"], ans: 0, exp: "Martha E. Rogers was born on May 12, 1914, in Dallas, Texas, USA." },
+    { q: "In which year did Martha Rogers publish 'Theoretical Basis of Nursing'?", options: ["1954", "1970", "1988", "1990"], ans: 1, exp: "Theoretical Basis of Nursing was published by Rogers in 1970." },
+    { q: "According to the theory, what does the term 'Unitary' refer to?", options: ["A single biological organ system", "A whole that cannot be broken down into parts (irreducible)", "A temporary state of emotional alignment", "A linear physiological structure"], ans: 1, exp: "Unitary refers to being a whole which cannot be broken down into parts, or is irreducible." },
+    { q: "What are the two dimensions contained within Rogers' Science of Unitary Human Beings?", options: ["The Science of Nursing and the Art of Nursing", "The Biological Model and the Social Model", "Passive Health and Active Recovery", "Spatial Dimension and Temporal Dimension"], ans: 0, exp: "The two dimensions are the Science of Nursing and the Art of Nursing." },
+    { q: "Rogers defined which concept as 'the fundamental unit of the living and the non-living'?", options: ["Pandimensionality", "Energy Field", "Pattern", "Metaparadigm"], ans: 1, exp: "The energy field is defined as the fundamental unit of both living and non-living." },
+    { q: "Which of the following is NOT one of the four major concepts in Rogers' framework?", options: ["Energy field", "Universe of Open Systems", "Pandimensionality", "Homeostasis"], ans: 3, exp: "The major concepts are Energy Field, Universe of Open Systems, Pattern, and Pandimensionality." },
+    { q: "How does Rogers define 'Pandimensionality'?", options: ["A dynamic state of physiological equilibrium", "A non-linear domain without spatial or temporal attributes", "A structured sequence of linear time intervals", "A physical boundary surrounding the body"], ans: 1, exp: "Pandimensionality is a non-linear domain without spatial or temporal attributes." },
+    { q: "Which principle of homeodynamics specifies continuous change from lower to higher frequency patterns?", options: ["Resonancy", "Helicy", "Integrality", "Openness"], ans: 0, exp: "Resonancy specifies continuous change from lower to higher frequency patterns." },
+    { q: "Which principle represents change along an innovative, unpredictable, spiraling axis?", options: ["Integrality", "Helicy", "Resonancy", "Symmetry"], ans: 1, exp: "Helicy represents continuous, unpredictable change along a spiraling axis." },
+    { q: "The principle of 'Integrality' refers to which key relationship?", options: ["Science + Art = Nursing", "Human + Environment continuous mutual interaction", "Mind + Body = Energy Field", "Health + Wellness = Pattern"], ans: 1, exp: "Integrality refers to continuous mutual interaction between human and environmental fields." },
+    { q: "In Rogers' Metaparadigm, what does 'passive health' symbolize?", options: ["Maximum potential for spiraling change", "Complete isolation from environmental energy fields", "Wellness and the absence of disease and major illness", "Fluctuating wave frequencies"], ans: 2, exp: "Passive health symbolizes wellness and the absence of major illness." },
+    { q: "According to Rogers, professional practice in nursing seeks to promote what type of interaction?", options: ["Static interaction", "Symphonic interaction", "Linear interaction", "Isolated interaction"], ans: 1, exp: "Professional nursing practice seeks to promote symphonic interaction between human and environmental fields." },
+    { q: "Which nursing actions are specifically emphasized under Rogers' framework?", options: ["Invasive surgical interventions", "Non-invasive actions such as guided imagery, humor, and music", "Complete physical isolation techniques", "Pharmacological treatment exclusively"], ans: 1, exp: "Rogers' theory emphasizes non-invasive modalities like therapeutic touch, music, and guided imagery." },
+    { q: "From which university did Martha Rogers obtain her Doctorate in Nursing in 1954?", options: ["Teachers College, Columbia University", "George Peabody College", "Johns Hopkins University, Baltimore", "Knoxville General Hospital"], ans: 2, exp: "Martha Rogers completed her Doctorate in Nursing at Johns Hopkins University in 1954." },
+    { q: "A patient recalling a frightening childhood experience and feeling present anxiety illustrates which concept?", options: ["Pandimensionality", "Passive health", "Linear time system", "Closed energy field"], ans: 0, exp: "This demonstrates pandimensionality, where past events influence present perceptions beyond time constraints." }
+  ];
+
+  let currentQ = 0;
+  let userAnswers = new Array(questions.length).fill(null);
+  let candidateName = "";
+  let timerInterval = null;
+  let timeLeft = 60; // 1 minute per question
+
+  // Hash-based Routing (URL Toggle)
+  window.addEventListener('hashchange', handleRouting);
+  window.addEventListener('load', () => {
+    handleRouting();
+    renderAdminTable();
+  });
+
+  function handleRouting() {
+    const hash = window.location.hash;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    if (hash === '#admin') {
+      document.getElementById('admin-view').classList.add('active');
+      renderAdminTable();
+    } else if (hash === '#results') {
+      document.getElementById('result-view').classList.add('active');
+    } else {
+      document.getElementById('start-view').classList.add('active');
+    }
+  }
+
+  function startQuiz() {
+    const nameInput = document.getElementById('candidate-name').value.trim();
+    if (!nameInput) { alert("Please enter your name to start!"); return; }
+    candidateName = nameInput;
+    currentQ = 0;
+    userAnswers.fill(null);
+    window.location.hash = "#quiz";
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('quiz-view').classList.add('active');
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    clearInterval(timerInterval);
+    timeLeft = 60;
+    updateTimerDisplay();
+
+    const q = questions[currentQ];
+    document.getElementById('q-count').innerText = `Question ${currentQ + 1} / ${questions.length}`;
+    document.getElementById('q-text').innerText = `${currentQ + 1}. ${q.q}`;
+    document.getElementById('progress').style.width = `${((currentQ) / questions.length) * 100}%`;
+
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+
+    q.options.forEach((opt, idx) => {
+      const card = document.createElement('div');
+      card.className = `option-card ${userAnswers[currentQ] === idx ? 'selected' : ''}`;
+      card.innerText = opt;
+      card.onclick = () => selectOption(idx);
+      optionsContainer.appendChild(card);
+    });
+
+    document.getElementById('next-btn').innerText = currentQ === questions.length - 1 ? "Submit Quiz 🚀" : "Next Question ➔";
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        nextQuestion(); // Auto-advance when time expires
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const timerBadge = document.getElementById('timer');
+    const sec = timeLeft < 10 ? `0${timeLeft}` : timeLeft;
+    timerBadge.innerText = `⏱️ 00:${sec}`;
+    if (timeLeft <= 10) timerBadge.classList.add('warning');
+    else timerBadge.classList.remove('warning');
+  }
+
+  function selectOption(index) {
+    userAnswers[currentQ] = index;
+    const cards = document.querySelectorAll('.option-card');
+    cards.forEach((c, i) => c.classList.toggle('selected', i === index));
+  }
+
+  function nextQuestion() {
+    clearInterval(timerInterval);
+    if (currentQ < questions.length - 1) {
+      currentQ++;
+      loadQuestion();
+    } else {
+      submitQuiz();
+    }
+  }
+
+  function submitQuiz() {
+    let score = 0;
+    questions.forEach((q, idx) => {
+      if (userAnswers[idx] === q.ans) score++;
+    });
+
+    const percentage = ((score / questions.length) * 100).toFixed(1);
+
+    // Save Result for Admin
+    const newRecord = {
+      name: candidateName,
+      score: `${score}/${questions.length}`,
+      percentage: `${percentage}%`,
+      date: new Date().toLocaleString()
+    };
+
+    let allResults = JSON.parse(localStorage.getItem('nursing_quiz_results') || '[]');
+    allResults.push(newRecord);
+    localStorage.setItem('nursing_quiz_results', JSON.stringify(allResults));
+
+    // Show Results View
+    document.getElementById('user-score-text').innerHTML = `<strong>${candidateName}</strong>, your score is <span style="color: var(--primary); font-size: 1.4rem; font-weight:700;">${score} / ${questions.length}</span> (${percentage}%)`;
+    
+    renderReview();
+    window.location.hash = "#results";
+  }
+
+  function renderReview() {
+    const container = document.getElementById('review-container');
+    container.innerHTML = '';
+    questions.forEach((q, idx) => {
+      const userAns = userAnswers[idx];
+      const isCorrect = userAns === q.ans;
+      
+      const item = document.createElement('div');
+      item.style.cssText = "background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px;";
+      item.innerHTML = `
+        <div style="font-weight: 600; margin-bottom: 8px;">${idx + 1}. ${q.q}</div>
+        <div style="font-size: 0.95rem; color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}; margin-bottom: 5px;">
+          Your Answer: ${userAns !== null ? q.options[userAns] : '<em>No Answer (Time Expired)</em>'} ${isCorrect ? '✅' : '❌'}
+        </div>
+        ${!isCorrect ? `<div style="font-size: 0.95rem; color: var(--success); margin-bottom: 5px;">Correct Answer: ${q.options[q.ans]}</div>` : ''}
+        <div style="font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 8px; border-radius: 6px; margin-top: 6px;">💡 <strong>Explanation:</strong> ${q.exp}</div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function renderAdminTable() {
+    const tbody = document.getElementById('admin-table-body');
+    const results = JSON.parse(localStorage.getItem('nursing_quiz_results') || '[]');
+    if (results.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No results recorded yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = results.map(r => `
+      <tr>
+        <td style="font-weight: 600;">${r.name}</td>
+        <td>${r.score}</td>
+        <td>${r.percentage}</td>
+        <td style="font-size: 0.85rem; color: #64748b;">${r.date}</td>
+      </tr>
+    `).join('');
+  }
+
+  function clearData() {
+    if (confirm("Are you sure you want to clear all candidate results?")) {
+      localStorage.removeItem('nursing_quiz_results');
+      renderAdminTable();
+    }
+  }
+</script>
+</body>
+</html>
